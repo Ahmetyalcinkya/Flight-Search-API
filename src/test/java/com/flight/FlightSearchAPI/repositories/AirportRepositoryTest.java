@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class AirportRepositoryTest {
@@ -27,12 +29,12 @@ class AirportRepositoryTest {
 
     @Test
     void findAirportByCity() {
-        Airport airport = airportRepository.findAirportByCity("Istanbul");
-        assertEquals("Istanbul", airport.getCity());
+        Optional<Airport> airport = airportRepository.findAirportByCity("Istanbul");
+        airport.ifPresent(value -> assertEquals("Istanbul", value.getCity()));
     }
     @Test
     void findAirportByCityFail() {
-        Airport airport = airportRepository.findAirportByCity("Ankara");
-        assertNull(airport);
+        Optional<Airport> airport = airportRepository.findAirportByCity("Ankara");
+        assertEquals(Optional.empty(), airport);
     }
 }
