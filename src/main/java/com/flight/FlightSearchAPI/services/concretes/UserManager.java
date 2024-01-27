@@ -9,13 +9,18 @@ import com.flight.FlightSearchAPI.services.abstracts.ModelMapperService;
 import com.flight.FlightSearchAPI.services.abstracts.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 @Service
-public class UserManager implements UserService { //TODO -> UserDetailsService
+public class UserManager implements UserService,UserDetailsService {
     private UserRepository userRepository;
     private ModelMapperService modelMapperService;
 
@@ -76,8 +81,12 @@ public class UserManager implements UserService { //TODO -> UserDetailsService
     }
     @Override
     public String getAuthenticatedUser() {
-// TODO       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        return authentication.getName();
-        return null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findUserByEmail(username).orElseThrow();
     }
 }
