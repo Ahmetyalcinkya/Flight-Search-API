@@ -9,11 +9,13 @@ import com.flight.FlightSearchAPI.dto.responses.FlightResponse;
 import com.flight.FlightSearchAPI.dto.responses.FlightResponseOneWay;
 import com.flight.FlightSearchAPI.entities.Airport;
 import com.flight.FlightSearchAPI.entities.Flight;
+import com.flight.FlightSearchAPI.exceptions.FlightException;
 import com.flight.FlightSearchAPI.repositories.AirportRepository;
 import com.flight.FlightSearchAPI.repositories.FlightRepository;
 import com.flight.FlightSearchAPI.services.abstracts.FlightService;
 import com.flight.FlightSearchAPI.services.abstracts.ModelMapperService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -47,8 +49,11 @@ public class FlightManager implements FlightService {
     @Override
     public List<FlightResponseOneWay> getOneWayFlights(LocalDateTime departureDate, String departureAirport, String arrivalAirport) {
         List<Flight> flights = flightRepository.searchOneWayFlights(departureDate, arrivalAirport, departureAirport);
-        Airport departure = airportRepository.findAirportByCity(departureAirport).orElseThrow(); //TODO THROW EXCEPTION
-        Airport arrival = airportRepository.findAirportByCity(arrivalAirport).orElseThrow(); //TODO THROW EXCEPTION
+
+        Airport departure = airportRepository.findAirportByCity(departureAirport).orElseThrow(
+                () -> new FlightException("Airport not found!", HttpStatus.NOT_FOUND));
+        Airport arrival = airportRepository.findAirportByCity(arrivalAirport).orElseThrow(
+                () -> new FlightException("Airport not found!", HttpStatus.NOT_FOUND));
 
         AirportResponse departureResponse = modelMapperService.forResponse().map(departure, AirportResponse.class);
         AirportResponse arrivalResponse = modelMapperService.forResponse().map(arrival, AirportResponse.class);
@@ -66,8 +71,11 @@ public class FlightManager implements FlightService {
     @Override
     public List<FlightResponse> getTwoWayFlights(LocalDateTime departureDate, LocalDateTime returnDate, String departureAirport, String arrivalAirport) {
         List<Flight> flights = flightRepository.searchTurnaroundFlights(departureDate,returnDate, arrivalAirport, departureAirport);
-        Airport departure = airportRepository.findAirportByCity(departureAirport).orElseThrow(); //TODO THROW EXCEPTION
-        Airport arrival = airportRepository.findAirportByCity(arrivalAirport).orElseThrow(); //TODO THROW EXCEPTION
+
+        Airport departure = airportRepository.findAirportByCity(departureAirport).orElseThrow(
+                () -> new FlightException("Airport not found!", HttpStatus.NOT_FOUND));
+        Airport arrival = airportRepository.findAirportByCity(arrivalAirport).orElseThrow(
+                () -> new FlightException("Airport not found!", HttpStatus.NOT_FOUND));
 
         AirportResponse departureResponse = modelMapperService.forResponse().map(departure, AirportResponse.class);
         AirportResponse arrivalResponse = modelMapperService.forResponse().map(arrival, AirportResponse.class);
@@ -83,12 +91,12 @@ public class FlightManager implements FlightService {
     }
 
     @Override
-    public List<FlightResponse> saveTwoWayFlightsFromAPI(List<FlightSaveRequest> flightSaveRequests) {
+    public List<FlightResponse> saveTwoWayFlightsFromAPI(List<Flight> flights) {
         return null; //TODO Make a new api
     }
 
     @Override
-    public List<FlightResponse> saveOneWayFlightsFromAPI(List<OneWayFlightSaveRequest> oneWayFlightSaveRequests) {
+    public List<FlightResponse> saveOneWayFlightsFromAPI(List<Flight> flights) {
         return null; //TODO Make a new api
     }
 
@@ -99,7 +107,7 @@ public class FlightManager implements FlightService {
         if(flight.isPresent()){
             return modelMapperService.forResponse().map(flight, FlightResponse.class);
         }
-        return null; //TODO THROW EXCEPTION
+        throw new FlightException("Flight not found!", HttpStatus.NOT_FOUND);
     }
 
     @Override
