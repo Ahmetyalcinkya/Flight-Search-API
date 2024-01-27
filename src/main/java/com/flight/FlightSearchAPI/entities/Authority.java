@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "authority", schema = "flight")
-public class Authority { //TODO --> Implements GrantedAuthority
+public class Authority implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,4 +25,9 @@ public class Authority { //TODO --> Implements GrantedAuthority
 
     @OneToMany(mappedBy = "authority",cascade = CascadeType.ALL)
     private List<User> users;
+
+    @Override
+    public String getAuthority() {
+        return authority;
+    }
 }
