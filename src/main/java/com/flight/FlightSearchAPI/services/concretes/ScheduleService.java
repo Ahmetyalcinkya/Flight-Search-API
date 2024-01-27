@@ -3,7 +3,6 @@ package com.flight.FlightSearchAPI.services.concretes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.flight.FlightSearchAPI.dto.requests.OneWayFlightSaveRequest;
 import com.flight.FlightSearchAPI.dto.responses.AirportResponse;
 import com.flight.FlightSearchAPI.dto.responses.FlightResponse;
 import com.flight.FlightSearchAPI.entities.Airport;
