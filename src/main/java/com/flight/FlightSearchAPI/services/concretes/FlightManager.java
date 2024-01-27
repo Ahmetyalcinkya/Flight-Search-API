@@ -1,8 +1,6 @@
 package com.flight.FlightSearchAPI.services.concretes;
 
-import com.flight.FlightSearchAPI.dto.requests.FlightSaveRequest;
 import com.flight.FlightSearchAPI.dto.requests.FlightUpdateRequest;
-import com.flight.FlightSearchAPI.dto.requests.OneWayFlightSaveRequest;
 import com.flight.FlightSearchAPI.dto.requests.OneWayFlightUpdateRequest;
 import com.flight.FlightSearchAPI.dto.responses.AirportResponse;
 import com.flight.FlightSearchAPI.dto.responses.FlightResponse;
@@ -92,12 +90,16 @@ public class FlightManager implements FlightService {
 
     @Override
     public List<FlightResponse> saveTwoWayFlightsFromAPI(List<Flight> flights) {
-        return null; //TODO Make a new api
+        flightRepository.saveAll(flights);
+        return flights.stream().map(flight ->
+                modelMapperService.forResponse().map(flight, FlightResponse.class)).collect(Collectors.toList());
     }
 
     @Override
     public List<FlightResponse> saveOneWayFlightsFromAPI(List<Flight> flights) {
-        return null; //TODO Make a new api
+        flightRepository.saveAll(flights);
+        return flights.stream().map(flight ->
+                modelMapperService.forResponse().map(flight, FlightResponse.class)).collect(Collectors.toList());
     }
 
     @Override
@@ -112,12 +114,32 @@ public class FlightManager implements FlightService {
 
     @Override
     public FlightResponse updateOneWayFlight(OneWayFlightUpdateRequest oneWayFlightUpdateRequest) {
-        return null; //TODO Update will be added
+        flightRepository.findById(oneWayFlightUpdateRequest.getId()).orElseThrow(
+                () -> new FlightException("Flight not found!", HttpStatus.NOT_FOUND));
+        airportRepository.findAirportByCity(oneWayFlightUpdateRequest.getDepartureAirport().getCity()).orElseThrow(
+                () -> new FlightException("Departure airport not found!", HttpStatus.NOT_FOUND));
+        airportRepository.findAirportByCity(oneWayFlightUpdateRequest.getArrivalAirport().getCity()).orElseThrow(
+                () -> new FlightException("Arrival airport not found!", HttpStatus.NOT_FOUND));
+
+        Flight updatedFlight = modelMapperService.forRequest().map(oneWayFlightUpdateRequest, Flight.class);
+        flightRepository.save(updatedFlight);
+
+        return modelMapperService.forResponse().map(updatedFlight, FlightResponse.class);
     }
 
     @Override
     public FlightResponse updateTwoWayFlight(FlightUpdateRequest flightUpdateRequest) {
-        return null; //TODO Update will be added
+        flightRepository.findById(flightUpdateRequest.getId()).orElseThrow(
+                () -> new FlightException("Flight not found!", HttpStatus.NOT_FOUND));
+        airportRepository.findAirportByCity(flightUpdateRequest.getDepartureAirport().getCity()).orElseThrow(
+                () -> new FlightException("Departure airport not found!", HttpStatus.NOT_FOUND));
+        airportRepository.findAirportByCity(flightUpdateRequest.getArrivalAirport().getCity()).orElseThrow(
+                () -> new FlightException("Arrival airport not found!", HttpStatus.NOT_FOUND));
+
+        Flight updatedFlight = modelMapperService.forRequest().map(flightUpdateRequest, Flight.class);
+        flightRepository.save(updatedFlight);
+
+        return modelMapperService.forResponse().map(updatedFlight, FlightResponse.class);
     }
 
     @Override
